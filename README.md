@@ -32,17 +32,15 @@ APIBuilder.get("/users")
   });
 
 // POST request example
-APIBuilder.post("/users")
-  .setData({ name: "John Doe", email: "john@example.com" })
+APIBuilder.post("/users", { name: "John Doe", email: "john@example.com" })
   .build()
   .call()
   .then((response) => {
     console.log(response.data);
   });
 
-// GET request with query parameters
-APIBuilder.get("/users")
-  .setParams({ search: "john", page: 1 })
+// PUT request example
+APIBuilder.put("/users/1", { name: "Updated Name" })
   .build()
   .call()
   .then((response) => {
@@ -55,32 +53,31 @@ APIBuilder.get("/users")
 ```typescript
 // Headers and timeout settings
 APIBuilder.get("/users")
-  .setHeaders({
+  .headers({
     "Content-Type": "application/json",
     "Custom-Header": "value",
   })
-  .setTimeout(5000)
+  .timeout(5000)
   .build()
   .call();
 
 // Base URL configuration
-APIBuilder.post("/auth/login")
-  .setBaseURL("https://api.example.com")
-  .setData({
-    username: "user",
-    password: "pass",
-  })
+APIBuilder.post("/auth/login", {
+  username: "user",
+  password: "pass",
+})
+  .baseUrl("https://api.example.com")
   .build()
   .call();
 
 // WithCredentials setting
-APIBuilder.get("/protected-resource").setWithCredentials(true).build().call();
+APIBuilder.get("/protected-resource").withCredentials(true).build().call();
 ```
 
 ## Using Global Interceptors
 
 ```typescript
-import { InterceptorManager } from "@your-username/axios-builder";
+import { InterceptorManager } from "@wookgi/axios-builder";
 
 const interceptorManager = InterceptorManager.getInstance();
 
@@ -102,6 +99,34 @@ interceptorManager.addResponseInterceptor(
     return Promise.reject(error);
   }
 );
+```
+
+## Request-Specific Interceptors
+
+You can also add interceptors to specific API instances:
+
+```typescript
+const api = APIBuilder.get("/users").build();
+
+// Add request interceptor to this specific API instance
+api.setRequestInterceptor((config) => {
+  console.log("Request intercepted:", config);
+  return config;
+});
+
+// Add response interceptor to this specific API instance
+api.setResponseInterceptor(
+  (response) => {
+    console.log("Response received:", response);
+    return response;
+  },
+  (error) => {
+    console.error("Error intercepted:", error);
+    return Promise.reject(error);
+  }
+);
+
+api.call();
 ```
 
 ## TypeScript Support
@@ -128,22 +153,20 @@ APIBuilder.get("/users")
 
 ### HTTP Methods
 
-- `APIBuilder.get(url)`
-- `APIBuilder.post(url)`
-- `APIBuilder.put(url)`
-- `APIBuilder.delete(url)`
-- `APIBuilder.patch(url)`
+- `APIBuilder.get(url)` - Create a GET request
+- `APIBuilder.post(url, data)` - Create a POST request with data
+- `APIBuilder.put(url, data)` - Create a PUT request with data
+- `APIBuilder.patch(url)` - Create a PATCH request
+- `APIBuilder.delete(url)` - Create a DELETE request
 
 ### Configuration Methods
 
-- `.setHeaders(headers)` - Set HTTP headers
-- `.setParams(params)` - Set query parameters
-- `.setData(data)` - Set request body data
-- `.setTimeout(timeout)` - Set request timeout
-- `.setWithCredentials(boolean)` - Set credentials inclusion
-- `.setBaseURL(url)` - Set base URL
+- `.headers(headers)` - Set HTTP headers
+- `.timeout(timeout)` - Set request timeout in milliseconds
+- `.withCredentials(boolean)` - Set credentials inclusion
+- `.baseUrl(url)` - Set base URL for the request
 - `.build()` - Create API instance
-- `.call<T>()` - Execute API call
+- `.call<T>()` - Execute API call with optional response type
 
 ## Error Handling
 
@@ -170,11 +193,11 @@ APIBuilder.get("/users")
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@your-username/axios-builder/dist/index.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@wookgi/axios-builder/dist/index.umd.js"></script>
 <script>
   // Global AxiosBuilder object
   const api = AxiosBuilder.APIBuilder.get("/users")
-    .setBaseURL("https://api.example.com")
+    .baseUrl("https://api.example.com")
     .build();
 
   api
@@ -188,14 +211,12 @@ APIBuilder.get("/users")
 
 ```javascript
 // CommonJS
-const { APIBuilder } = require("@your-username/axios-builder");
+const { APIBuilder } = require("@wookgi/axios-builder");
 
 // or ESM
-// import { APIBuilder } from '@your-username/axios-builder';
+// import { APIBuilder } from '@wookgi/axios-builder';
 
-const api = APIBuilder.get("/users")
-  .setBaseURL("https://api.example.com")
-  .build();
+const api = APIBuilder.get("/users").baseUrl("https://api.example.com").build();
 
 api
   .call()
