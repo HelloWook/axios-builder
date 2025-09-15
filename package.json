@@ -1,6 +1,6 @@
 {
   "name": "@wookgi/axios-builder",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A builder pattern implementation for creating API requests using Axios in TypeScript",
   "exports": {
     ".": {
